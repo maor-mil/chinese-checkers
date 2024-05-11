@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Chinese Checkers</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="ChineseCheckersCSS.css">
+    </head>
+    
+    <body style="background-color: #d1e8e2">
+        <h1 class="mainHeader">Chinese Checkers Web</h1>
+        
+        <h2 id="currPlayerColor" class="Inner"></h2>
+        <h2 id="currGameTurn" class="Inner"></h2>
+        
+        <div id="selectGameMode" class="Outer">
+            <br>
+            <button id="startBotBtn" class="Inner" onclick="setBotGame()" >Start Bot Game</button>
+            <br>
+            <button id="startOnlineBtn" class="Inner" onclick="setOnlineGame()">Start Online Game</button>
+            <br>
+            <button id="joinOnlineBtn" class="Inner" onclick="sendGetLobbiesListToServer()">Join to Online Game</button>
+            <br>
+            <button id="startLocalBtn" class="Inner" onclick="setLocalGame()">Start Local Game</button>
+            <br>
+        </div>
+        
+        <div id="pickPlayersColors" class="Outer" style="display:none;">
+            <br>
+            <button class="Inner" onclick="returnToMenuFromPickingColors()">Return to Menu</button>
+            <br>
+            <input type="text" class="Inner" id="lobName" placeholder="Lobby Name">
+            <br>
+            <label class="container Inner">Green
+                <input type="checkbox" id="greenCB" value="g">
+                <span class="checkmark Inner"></span>
+            </label>
+            <label class="container Inner">Red
+                <input type="checkbox" id="redCB" value="r">
+                <span class="checkmark Inner"></span>
+            </label>
+            <label class="container Inner">Yellow
+                <input type="checkbox" id="yellowCB" value="y">
+                <span class="checkmark Inner"></span>
+            </label>
+            <label class="container Inner">Purple
+                <input type="checkbox" id="purpleCB" value="p">
+                <span class="checkmark Inner"></span>
+            </label>
+            <label class="container Inner">Orange
+                <input type="checkbox" id="orangeCB" value="o">
+                <span class="checkmark Inner"></span>
+            </label>
+            <label class="container Inner">Blue
+                <input type="checkbox" id="blueCB" value="b">
+                <span class="checkmark Inner"></span>
+            </label>
+            <br>
+            <input type="button" id="localBtn" class="Inner" onclick="startLocalGame()" value="Start Local Game!">
+            <input type="button" id="onlineBtn" class="Inner" onclick="startOnlineGame()" value="Start Online Game!">
+            <br>
+        </div>
+        
+        <div id="pickBots" class="Outer" style="display:none;">
+            <br>
+            <label for="greenPlayer" class="Inner">Choose player for green side:</label>
+            <select id="greenPlayer" class="Inner">
+              <option value="alphaBeta">Alpha Beta</option>
+              <option value="alphaBetaHard">Alpha Beta Hard</option>
+              <option value="monteCarlo">Monte Carlo</option>
+              <option value="human">Human</option>
+            </select>
+            <br>
+            <label for="redPlayer" class="Inner">Choose player for red side:</label>
+            <select id="redPlayer" class="Inner">
+              <option value="alphaBeta">Alpha Beta</option>
+              <option value="alphaBetaHard">Alpha Beta Hard</option>
+              <option value="monteCarlo">Monte Carlo</option>
+              <option value="human">Human</option>
+            </select>
+            <br>
+            <button id="startBotBtn" class="Inner" onclick="startBotGame()">Start Bot Game</button>
+            <br>
+        </div>
+        
+        <div id="onlineGamesList" style="display:none">
+            <br>
+            <button class="Inner" onclick="returnToMenuFromLobbiesList()">Return to Menu</button>
+            <br>
+            <table id="onlineGamesListTbl" class="Inner">
+                <tr>
+                    <th>Lobby Name</th>
+                    <th>Current Players Count</th>
+                    <th>Players Required to Start</th>
+                    <th></th>
+                </tr>
+            </table>
+        </div>
+        
+        <div id="gameUI" style="display:none;">
+            <br>
+            <button id="exitMatchBtn" class="Inner" onclick="exitMatch()">Return to Menu</button>
+            <br>
+            <svg width="600" height="600" viewBox="200 200 600 600" id="boardSvg" style="display:block; margin: auto;">
+                <defs>
+                    <linearGradient id="LinearGradientWhite">
+                        <stop style="stop-color:#ffffff;stop-opacity:1" offset="0" />
+                        <stop style="stop-color:#e8e8e8;stop-opacity:1" offset="0.8" />
+                        <stop style="stop-color:#c0c0c0;stop-opacity:1" offset="1" />
+
+                    </linearGradient>
+                    <linearGradient id="LinearGradientWhiteClickable">
+                        <stop style="stop-color:#ffffff;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="LinearGradientRed">
+                        <stop style="stop-color:#ff9999;stop-opacity:1" offset="0" />
+                        <stop style="stop-color:#d32d2d;stop-opacity:1" offset="0.8" />
+                        <stop style="stop-color:#b40000;stop-opacity:1" offset="1" />
+                    </linearGradient>
+                    <linearGradient id="LinearGradientOrange">
+                        <stop style="stop-color:#ffe4c1;stop-opacity:1" offset="0" />
+                        <stop style="stop-color:#ff9a19;stop-opacity:1" offset="0.72" />
+                        <stop style="stop-color:#f08800;stop-opacity:1" offset="1" />
+                    </linearGradient>
+                    <linearGradient id="LinearGradientYellow">
+                        <stop style="stop-color:#fffbc1;stop-opacity:1" offset="0" />
+                        <stop style="stop-color:#e7dc29;stop-opacity:1" offset="0.75" />
+                        <stop style="stop-color:#c8bc00;stop-opacity:1" offset="1" />
+                    </linearGradient>
+                    <linearGradient id="LinearGradientBlue">
+                        <stop style="stop-color:#b9b9ff;stop-opacity:1" offset="0" />
+                        <stop style="stop-color:#3131cf;stop-opacity:1" offset="0.8" />
+                        <stop style="stop-color:#0000b4;stop-opacity:1" offset="1" />
+                    </linearGradient>
+                    <linearGradient id="LinearGradientGreen">
+                        <stop style="stop-color:#00eb00;stop-opacity:1" offset="0" />
+                        <stop style="stop-color:#00b600;stop-opacity:1" offset="0.5" />
+                        <stop style="stop-color:#005000;stop-opacity:1" offset="1" />
+                    </linearGradient>
+                    <linearGradient id="LinearGradientPurple">
+                        <stop style="stop-color:#ebcef2;stop-opacity:1" offset="0" />
+                        <stop style="stop-color:#ac37c9;stop-opacity:1" offset="0.8" />
+                        <stop style="stop-color:#79278d;stop-opacity:1" offset="1" />
+                    </linearGradient>
+                    <filter id="StoneDropShadow" x="-0.25" y="-0.25" width="1.5" height="1.5" color-interpolation-filters="sRGB">
+                        <feGaussianBlur result="blur" stdDeviation="2" in="SourceAlpha" />
+                        <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.4 0 " type="matrix" result="bluralpha" />
+                        <feOffset result="offsetBlur" dy="2" dx="2" in="bluralpha" />
+                        <feMerge><feMergeNode in="offsetBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                    </filter>
+                    <radialGradient id="RadialGradientWhite" xlink:href="#LinearGradientWhite"
+                            cx="0" cy="0" r="16" fx="8" fy="8" gradientUnits="userSpaceOnUse" />
+                    <radialGradient id="RadialGradientWhite" xlink:href="#LinearGradientWhiteClickable"
+                            cx="0" cy="0" r="16" fx="8" fy="8" gradientUnits="userSpaceOnUse" />
+                    <radialGradient id="RadialGradientRed" xlink:href="#LinearGradientRed"
+                            cx="0" cy="0" r="16" fx="-6" fy="-6" gradientUnits="userSpaceOnUse" />
+                    <radialGradient id="RadialGradientOrange" xlink:href="#LinearGradientOrange"
+                            cx="0" cy="0" r="16" fx="-6" fy="-6" gradientUnits="userSpaceOnUse" />
+                    <radialGradient id="RadialGradientYellow" xlink:href="#LinearGradientYellow"
+                            cx="0" cy="0" r="16" fx="-6" fy="-6" gradientUnits="userSpaceOnUse" />
+                    <radialGradient id="RadialGradientGreen" xlink:href="#LinearGradientGreen"
+                            cx="0" cy="0" r="16" fx="-6" fy="-6" gradientUnits="userSpaceOnUse" />
+                    <radialGradient id="RadialGradientBlue" xlink:href="#LinearGradientBlue"
+                            cx="0" cy="0" r="16" fx="-6" fy="-6" gradientUnits="userSpaceOnUse" />
+                    <radialGradient id="RadialGradientPurple" xlink:href="#LinearGradientPurple"
+                            cx="0" cy="0" r="16" fx="-6" fy="-6" gradientUnits="userSpaceOnUse" />
+
+
+                    <circle id="WhiteHole" cx="0" cy="0" r="16"
+                            style="fill:url(#RadialGradientWhite);stroke:#cccccc;stroke-width:2;"/>
+
+                    <circle id="WhiteHoleClickable" cx="0" cy="0" r="16"
+                            style="fill:url(#LinearGradientWhiteClickable);stroke:#cccccc;stroke-width:2;cursor: pointer;"/>
+
+                    <circle class="Red Ball" id="RedBall" cx="0" cy="0" r="16" />
+                    <circle class="Red Ball" id="RedBallOnClick" cx="0" cy="0" r="13" />
+
+                    <circle class="Orange Ball" id="OrangeBall" cx="0" cy="0" r="16" />
+                    <circle class="Orange Ball" id="OrangeBallOnClick" cx="0" cy="0" r="13" />
+
+                    <circle class="Yellow Ball" id="YellowBall" cx="0" cy="0" r="16" />
+                    <circle class="Yellow Ball" id="YellowBallOnClick" cx="0" cy="0" r="13" />
+
+                    <circle class="Green Ball" id="GreenBall" cx="0" cy="0" r="16" />
+                    <circle class="Green Ball" id="GreenBallOnClick" cx="0" cy="0" r="13" />
+
+                    <circle class="Blue Ball" id="BlueBall" cx="0" cy="0" r="16" />
+                    <circle class="Blue Ball" id="BlueBallOnClick" cx="0" cy="0" r="13" />
+
+                    <circle class="Purple Ball" id="PurpleBall" cx="0" cy="0" r="16" />
+                    <circle class="Purple Ball" id="PurpleBallOnClick" cx="0" cy="0" r="13" />
+                </defs>
+
+                <path id="Mainstar" style="fill:#e6e6e6;stroke:#808080;stroke-width:5;filter:url(#StoneDropShadow)"
+                        d="m 258.55302,347.00013 c -11.77794,0 -17.88058,10.32639 -11.77795,20.4 L 313.3409,482.6955 c 6.93083,12.00455 6.93082,22.60469 0,34.60924 l -66.56583,115.29539 c -5.88897,10.19999 0,20.4 11.77795,20.4 l 133.13166,0 c 13.86164,0 23.04164,5.30007 29.97247,17.30462 l 66.5658,115.29538 c 5.94943,10.16486 17.66693,10.2 23.5559,0 l 66.56583,-115.29539 c 6.93082,-12.00455 16.11081,-17.30462 29.97247,-17.30462 l 133.13164,0 c 11.77794,0 17.66692,-10.20001 11.77795,-20.4 L 686.6609,517.30474 c -6.93082,-12.00455 -6.93083,-22.60469 0,-34.60924 l 66.56584,-115.29537 c 5.88897,-10.19999 0,-20.4 -11.77795,-20.4 l -133.13166,0 c -13.86165,0 -23.04165,-5.30007 -29.97248,-17.30462 l -66.5658,-115.29538 c -5.88897,-10.2 -17.66693,-10.2 -23.5559,0 l -66.56582,115.29539 c -6.93083,12.00455 -16.11082,17.30462 -29.97247,17.30462 z" />
+                <g id ="ClickableElements">
+                <!--<g id="GroupWhite">-->
+                    <use id="0804" xlink:href="#WhiteHole" transform="translate(352,500)" />
+                    <use id="0806" xlink:href="#WhiteHole" transform="translate(389,500)" />
+                    <use id="0808" xlink:href="#WhiteHole" transform="translate(426,500)" />
+                    <use id="0810" xlink:href="#WhiteHole" transform="translate(463,500)" />
+                    <use id="0812" xlink:href="#WhiteHole" transform="translate(500,500)" />
+                    <use id="0814" xlink:href="#WhiteHole" transform="translate(537,500)" />
+                    <use id="0816" xlink:href="#WhiteHole" transform="translate(574,500)" />
+                    <use id="0818" xlink:href="#WhiteHole" transform="translate(611,500)" />
+                    <use id="0820" xlink:href="#WhiteHole" transform="translate(648,500)" />
+                    <use id="0705" xlink:href="#WhiteHole" transform="translate(370.5,467.95706)" />
+                    <use id="0707" xlink:href="#WhiteHole" transform="translate(407.5,467.95706)" />
+                    <use id="0709" xlink:href="#WhiteHole" transform="translate(444.5,467.95706)" />
+                    <use id="0711" xlink:href="#WhiteHole" transform="translate(481.5,467.95706)" />
+                    <use id="0713" xlink:href="#WhiteHole" transform="translate(518.5,467.95706)" />
+                    <use id="0715" xlink:href="#WhiteHole" transform="translate(555.5,467.95706)" />
+                    <use id="0717" xlink:href="#WhiteHole" transform="translate(592.5,467.95706)" />
+                    <use id="0719" xlink:href="#WhiteHole" transform="translate(629.5,467.95706)" />
+                    <use id="0606" xlink:href="#WhiteHole" transform="translate(389,435.91412)" />
+                    <use id="0608" xlink:href="#WhiteHole" transform="translate(426,435.91412)" />
+                    <use id="0610" xlink:href="#WhiteHole" transform="translate(463,435.91412)" />
+                    <use id="0612" xlink:href="#WhiteHole" transform="translate(500,435.91412)" />
+                    <use id="0614" xlink:href="#WhiteHole" transform="translate(537,435.91412)" />
+                    <use id="0616" xlink:href="#WhiteHole" transform="translate(574,435.91412)" />
+                    <use id="0618" xlink:href="#WhiteHole" transform="translate(611,435.91412)" />
+                    <use id="0507" xlink:href="#WhiteHole" transform="translate(407.5,403.87118)" />
+                    <use id="0509" xlink:href="#WhiteHole" transform="translate(444.5,403.87118)" />
+                    <use id="0511" xlink:href="#WhiteHole" transform="translate(481.5,403.87118)" />
+                    <use id="0513" xlink:href="#WhiteHole" transform="translate(518.5,403.87118)" />
+                    <use id="0515" xlink:href="#WhiteHole" transform="translate(555.5,403.87118)" />
+                    <use id="0517" xlink:href="#WhiteHole" transform="translate(592.5,403.87118)" />
+                    <use id="0408" xlink:href="#WhiteHole" transform="translate(426,371.82824)" />
+                    <use id="0410" xlink:href="#WhiteHole" transform="translate(463,371.82824)" />
+                    <use id="0412" xlink:href="#WhiteHole" transform="translate(500,371.82824)" />
+                    <use id="0414" xlink:href="#WhiteHole" transform="translate(537,371.82824)" />
+                    <use id="0416" xlink:href="#WhiteHole" transform="translate(574,371.82824)" />
+                    <use id="0905" xlink:href="#WhiteHole" transform="translate(370.5,532.04294)" />
+                    <use id="0907" xlink:href="#WhiteHole" transform="translate(407.5,532.04294)" />
+                    <use id="0909" xlink:href="#WhiteHole" transform="translate(444.5,532.04294)" />
+                    <use id="0911" xlink:href="#WhiteHole" transform="translate(481.5,532.04294)" />
+                    <use id="0913" xlink:href="#WhiteHole" transform="translate(518.5,532.04294)" />
+                    <use id="0915" xlink:href="#WhiteHole" transform="translate(555.5,532.04294)" />
+                    <use id="0917" xlink:href="#WhiteHole" transform="translate(592.5,532.04294)" />
+                    <use id="0919" xlink:href="#WhiteHole" transform="translate(629.5,532.04294)" />
+                    <use id="1006" xlink:href="#WhiteHole" transform="translate(389,564.08588)" />
+                    <use id="1008" xlink:href="#WhiteHole" transform="translate(426,564.08588)" />
+                    <use id="1010" xlink:href="#WhiteHole" transform="translate(463,564.08588)" />
+                    <use id="1012" xlink:href="#WhiteHole" transform="translate(500,564.08588)" />
+                    <use id="1014" xlink:href="#WhiteHole" transform="translate(537,564.08588)" />
+                    <use id="1016" xlink:href="#WhiteHole" transform="translate(574,564.08588)" />
+                    <use id="1018" xlink:href="#WhiteHole" transform="translate(611,564.08588)" />
+                    <use id="1107" xlink:href="#WhiteHole" transform="translate(407.5,596.12882)" />
+                    <use id="1109" xlink:href="#WhiteHole" transform="translate(444.5,596.12882)" />
+                    <use id="1111" xlink:href="#WhiteHole" transform="translate(481.5,596.12882)" />
+                    <use id="1113" xlink:href="#WhiteHole" transform="translate(518.5,596.12882)" />
+                    <use id="1115" xlink:href="#WhiteHole" transform="translate(555.5,596.12882)" />
+                    <use id="1117" xlink:href="#WhiteHole" transform="translate(592.5,596.12882)" />
+                    <use id="1208" xlink:href="#WhiteHole" transform="translate(426,628.17176)" />
+                    <use id="1210" xlink:href="#WhiteHole" transform="translate(463,628.17176)" />
+                    <use id="1212" xlink:href="#WhiteHole" transform="translate(500,628.17176)" />
+                    <use id="1214" xlink:href="#WhiteHole" transform="translate(537,628.17176)" />
+                    <use id="1216" xlink:href="#WhiteHole" transform="translate(574,628.17176)" />
+                <!--</g>-->
+                <!--<g id="GroupRed">-->
+                    <use id="1315" class="GroupRed" xlink:href="#RedBall" transform="translate(555.5,660.2148)" />
+                    <use id="1313" class="GroupRed" xlink:href="#RedBall" transform="translate(518.5,660.2148)" />
+                    <use id="1311" class="GroupRed" xlink:href="#RedBall" transform="translate(481.5,660.2148)" />
+                    <use id="1309" class="GroupRed" xlink:href="#RedBall" transform="translate(444.5,660.2148)" />
+                    <use id="1414" class="GroupRed" xlink:href="#RedBall" transform="translate(537,692.25774)" />
+                    <use id="1412" class="GroupRed" xlink:href="#RedBall" transform="translate(500,692.25774)" />
+                    <use id="1410" class="GroupRed" xlink:href="#RedBall" transform="translate(463,692.25774)" />
+                    <use id="1513" class="GroupRed" xlink:href="#RedBall" transform="translate(518.5,724.30068)" />
+                    <use id="1511" class="GroupRed" xlink:href="#RedBall" transform="translate(481.5,724.30068)" />
+                    <use id="1612" class="GroupRed" xlink:href="#RedBall" transform="translate(500,756.34362)" />
+                <!--</g>-->
+                <!--<g id="GroupOrange">-->
+                    <use id="0921" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(666.5,532.04295)" />
+                    <use id="1020" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(648,564.08589)" />
+                    <use id="1119" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(629.5,596.12883)" />
+                    <use id="1218" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(611,628.17177)" />
+                    <use id="1022" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(685,564.08589)" />
+                    <use id="1121" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(666.5,596.12883)" />
+                    <use id="1220" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(648,628.17177)" />
+                    <use id="1123" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(703.5,596.12883)" />
+                    <use id="1222" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(685,628.17177)" />
+                    <use id="1224" class="GroupOrange" xlink:href="#OrangeBall" transform="translate(722,628.17177)" />
+                <!--</g>-->
+                <!--<g id="GroupYellow">-->
+                    <use id="0418" class="GroupYellow" xlink:href="#YellowBall" transform="translate(611,371.82824)" />
+                    <use id="0519" class="GroupYellow" xlink:href="#YellowBall" transform="translate(629.5,403.87118)" />
+                    <use id="0620" class="GroupYellow" xlink:href="#YellowBall" transform="translate(648,435.91412)" />
+                    <use id="0721" class="GroupYellow" xlink:href="#YellowBall" transform="translate(666.5,467.95706)" />
+                    <use id="0420" class="GroupYellow" xlink:href="#YellowBall" transform="translate(648,371.82824)" />
+                    <use id="0521" class="GroupYellow" xlink:href="#YellowBall" transform="translate(666.5,403.87118)" />
+                    <use id="0622" class="GroupYellow" xlink:href="#YellowBall" transform="translate(685,435.91412)" />
+                    <use id="0422" class="GroupYellow" xlink:href="#YellowBall" transform="translate(685,371.82824)" />
+                    <use id="0523" class="GroupYellow" xlink:href="#YellowBall" transform="translate(703.5,403.87118)" />
+                    <use id="0424" class="GroupYellow" xlink:href="#YellowBall" transform="translate(722,371.82824)" />
+                <!--</g>-->
+                <!--<g id="GroupGreen">-->
+                    <use id="0309" class="GroupGreen" xlink:href="#GreenBall" transform="translate(444.5,339.7853)" />
+                    <use id="0311" class="GroupGreen" xlink:href="#GreenBall" transform="translate(481.5,339.7853)" />
+                    <use id="0313" class="GroupGreen" xlink:href="#GreenBall" transform="translate(518.5,339.7853)" />
+                    <use id="0315" class="GroupGreen" xlink:href="#GreenBall" transform="translate(555.5,339.7853)" />
+                    <use id="0210" class="GroupGreen" xlink:href="#GreenBall" transform="translate(463,307.74236)" />
+                    <use id="0212" class="GroupGreen" xlink:href="#GreenBall" transform="translate(500,307.74236)" />
+                    <use id="0214" class="GroupGreen" xlink:href="#GreenBall" transform="translate(537,307.74236)" />
+                    <use id="0111" class="GroupGreen" xlink:href="#GreenBall" transform="translate(481.5,275.69942)" />
+                    <use id="0113" class="GroupGreen" xlink:href="#GreenBall" transform="translate(518.5,276.46937)" />
+                    <use id="0012" class="GroupGreen" xlink:href="#GreenBall" transform="translate(500,243.65648)" />
+                <!--</g>-->
+                <!--<g id="GroupBlue">-->
+                    <use id="0703" class="GroupBlue" xlink:href="#BlueBall" transform="translate(333.5,467.95705)" />
+                    <use id="0604" class="GroupBlue" xlink:href="#BlueBall" transform="translate(352,435.91411)" />
+                    <use id="0505" class="GroupBlue" xlink:href="#BlueBall" transform="translate(370.5,403.87117)" />
+                    <use id="0406" class="GroupBlue" xlink:href="#BlueBall" transform="translate(389,371.82823)" />
+                    <use id="0602" class="GroupBlue" xlink:href="#BlueBall" transform="translate(315,435.91411)" />
+                    <use id="0503" class="GroupBlue" xlink:href="#BlueBall" transform="translate(333.5,403.87117)" />
+                    <use id="0404" class="GroupBlue" xlink:href="#BlueBall" transform="translate(352,371.82823)" />
+                    <use id="0501" class="GroupBlue" xlink:href="#BlueBall" transform="translate(296.5,403.87117)" />
+                    <use id="0402" class="GroupBlue" xlink:href="#BlueBall" transform="translate(315,371.82823)" />
+                    <use id="0400" class="GroupBlue" xlink:href="#BlueBall" transform="translate(278,371.82823)" />
+                <!--</g>-->
+                <!--<g id="GroupPurple">-->
+                    <use id="1206" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(388.99998,628.17177)" />
+                    <use id="1105" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(370.49998,596.12883)" />
+                    <use id="1004" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(351.99998,564.08589)" />
+                    <use id="0903" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(333.49998,532.04295)" />
+                    <use id="1204" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(351.99998,628.17177)" />
+                    <use id="1103" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(333.49998,596.12883)" />
+                    <use id="1002" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(314.99998,564.08589)" />
+                    <use id="1202" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(314.99998,628.17177)" />
+                    <use id="1101" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(296.49998,596.12883)" />
+                    <use id="1200" class="GroupPurple" xlink:href="#PurpleBall" transform="translate(277.99998,628.17177)" />
+                <!--</g>-->
+                </g>
+            </svg>
+        </div>
+        <br>
+        <h2 id="infoMessage" class="Inner"></h2>
+        
+        <script src="ChineseCheckersJS.js"></script>
+    </body>
+</html>
